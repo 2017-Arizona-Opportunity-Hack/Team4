@@ -1,6 +1,10 @@
+import os
+import datetime
 import pandas as pd
 import geocoder
 import json
+import numpy as np
+import matplotlib.pyplot as plt
 
 def load_filtered_data(filter_dict, attempts, missing):
 	'''
@@ -37,10 +41,11 @@ def load_filtered_data(filter_dict, attempts, missing):
 	# perfect sphere of radius R.
 	# This allows us to get lat/longs within a square area of a specified
 	# location.
-	if 'location' in filter_dict and 'location_range' in filter_dict:
-		start_lat_lon = [filter_dict['location']['lat'], filter_dict['location']['lng']]
-		if start_lat_lon == []:
+	if 'location' in filter_dict and 'location_range' in filter_dict:		
+		start_lat_long = [filter_dict['location']['lat'], filter_dict['location']['lon']]
+		if start_lat_lon == [] or type(start_lat_lon) == type(None):
 			start_lat_lon = test_lat_lon
+
 		location_range = float(filter_dict['location_range'])
 		delta_theta = location_range/R
 
@@ -87,7 +92,10 @@ def load_filtered_data(filter_dict, attempts, missing):
 		else:
 			compound_filter = compound_filter & filters_missing[i]
 
-	filtered_missing = data_missing[compound_filter][['Lat', 'Lon']].values.tolist()
+	if len(filters_missing) == 0:
+		filtered_missing = data_missing[['Lat', 'Lon']].values.tolist()
+	else:
+		filtered_missing = data_missing[compound_filter][['Lat', 'Lon']].values.tolist()
 
 	filters_attempt = []
 	display_attempt = True
@@ -125,6 +133,22 @@ def load_filtered_data(filter_dict, attempts, missing):
 						compound_filter = gender_filter
 					else:
 						compound_filter = compound_filter | gender_filter
+			filters_attempt.append(compound_filter)
+		age_min = 0
+		age_max = 21
+		if 'age_min' in filter_dict:
+			age_min = int(filter_dict['age_min'])
+		if 'age_max' in filter_dict:
+			age_max = int(filter_dict['age_max'])
+		compound_filter = None
+		for i in range(6):
+			age_range_filter = (data_attempt['Child Perceived Age ' + str(i + 1)] >= str(age_min)) & \
+				(data_attempt['Child Perceived Age ' + str(i + 1)] <= str(age_max))
+			if type(compound_filter) == type(None):
+				compound_filter = age_range_filter
+			else:
+				compound_filter = compound_filter | age_range_filter
+			filters_attempt.append(compound_filter)
 		if 'state' in filter_dict:
 			filters_attempt.append(data_attempt['Incident State'] == filter_dict['state'])
 		if 'date_min' in filter_dict:
@@ -161,10 +185,13 @@ def load_filtered_data(filter_dict, attempts, missing):
 		#stuff = data_attempt[compound_filter][['Lat', 'Lon']]
 		else:
 			filtered_attempt = data_attempt[compound_filter][['Lat', 'Lon']].dropna(axis=0, how='any').values.tolist()
+			lure_frequency(data_attempt[compound_filter])
+			time_of_day_breakdown(data_attempt[compound_filter])
 	else:
 		filtered_attempt = []
-	print('num missing:', len(filtered_missing))
-	print('num attempted:', len(filtered_attempt))
+
+	print('num missing with current filter:', len(filtered_missing))
+	print('num attempted with current filter:', len(filtered_attempt))
 
 	return __collate_locations(filtered_attempt, filtered_missing)
 
@@ -180,6 +207,7 @@ def load_all_data():
 	Load all of the latitude/longitude coordinates for every row in each
 	dataset.
 	'''
+
 	missing_data_filename = 'Hackathon_Missing_Child_5_Years_of_Data_Geo.csv'
 	attempt_data_filename = 'Attempts_Hackathon_5_Years_of_Data_Geo.csv'
 
@@ -211,10 +239,82 @@ def __collate_locations(set1, set2):
 	locations = [(0, tuple(i)) for i in set1] + [(1, tuple(i)) for i in set2]
 	return locations
 
+def lure_frequency(filtered_attempt):
+	'''
+	Counts up the number of times each lure is used without paying attention to
+	combinations of lures being used at once.
+	'''
+
+	image_name = os.path.join('static', 'images', 'lure_info.png')
+	lure_columns = [i for i in list(filtered_attempt)
+		if 'offender method' in i.lower() and 'detail' not in i.lower()]
+	# Just counts up the number of times a particular lure is used.
+	lure_data = {key: sum([1 for i in filtered_attempt[key].tolist()
+		if i == -1]) for key in lure_columns}
+	num_lures_used = sum(list(lure_data.values()))
+
+	# Normalizes the counts of the lure data against the total number of lures used.
+	#lure_data = {key: lure_data[key]/num_lures_used for key in lure_data}
+	
+	labels = [m.split()[-1] for m in lure_columns]
+	y_vals = [lure_data[key] for key in lure_columns]
+	x_vals = [i for i in range(len(y_vals))]
+	plt.bar(x_vals, y_vals)
+	plt.xticks(x_vals, labels, rotation='vertical')
+	plt.margins(0.2)
+	plt.subplots_adjust(bottom=0.15)
+	plt.title('Most common lures for current filter')
+	plt.savefig(image_name)
+	plt.close()
+
+	return image_name
+
+def time_of_day_breakdown(filtered_attempt):
+	'''
+	Produces a breakdown of the frequency of incidents for time of day and day
+	of week for the current filter status.
+	'''
+
+	image_name = os.path.join('static', 'images', 'day_time_stats.png')
+
+	day_labels = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+	time_labels = [str(i) for i in range(24)]
+
+	counts_2d = np.zeros((24, 7))
+	num_rows = filtered_attempt.shape[0]
+	x = []
+	y = []
+
+	for i in range(num_rows):
+		row_date = filtered_attempt['Incident Date'].iloc[i]
+		row_time = filtered_attempt['Incident Time'].iloc[i]
+		dow = datetime.datetime.strptime(row_date, "%Y-%m-%d").strftime("%A")
+		tod = int(int(row_time)/100)
+		counts_2d[tod, day_labels.index(dow)] += 1.0
+		if tod > 0:
+			y.append(tod)
+			x.append(day_labels.index(dow))
+
+	x = np.array(x)
+	y = np.array(y)
+
+	counts_2d = counts_2d[1:, :]
+	print(counts_2d)
+	plt.scatter(x, y, alpha=1/counts_2d.max(), s=400)
+	plt.xticks(range(7), day_labels, rotation=-45)
+	plt.margins(0.2)
+	plt.ylabel('Time of day')
+	plt.title('Incident frequency for time of day and day of week ' + \
+		'\nfor current filter selection')
+	plt.subplots_adjust(bottom=0.15)
+	plt.savefig(image_name)
+	plt.close()
+
 if __name__ == "__main__":
 	#print(load_all_data())
 	#print(load_filtered_data({'gender':'Female', 'age_min':'1', 'age_max':'3'}))
+	locations = load_filtered_data({})
 	#locations = load_filtered_data({'date_min':'2011-01-01', 'date_max':'2014-01-01', 'location':'6161 e grant rd tucson az 85712', 'location_range':'50'})
-	locations = load_filtered_data({'gender':'Female', 'location':'6161 e grant rd tucson az 85712', 'location_range':'50'})
+	#locations = load_filtered_data({'gender':'Female', 'location':'6161 e grant rd tucson az 85712', 'location_range':'50'})
 	print(len(locations))
 	print(locations[0])
