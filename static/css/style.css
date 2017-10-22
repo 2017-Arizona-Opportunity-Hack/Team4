@@ -16,13 +16,27 @@
 
 #map {
     height: calc(100% - 35px);
-	width: calc(100% - 300px);
+	width: calc(100% - 250px);
 	margin-top: -4px;
 	float: left;
 }
 
+input[type="submit"]
+{
+    border: none;
+    background: white;
+    /* float: right; */
+    padding: 10px;
+    margin-left: 150px;
+    cursor: pointer;
+}
+
+input[type="submit"]:hover {
+	background: #ddd;
+}
+
 #fil {
-	width: 300px;
+	width: 250px;
 	height: calc(100% - 35px);
 	margin-top: -4px;
 	float:left;
@@ -34,11 +48,6 @@ html, body {
     margin: 0;
     padding: 0;
     overflow-y: hidden;
-}
-
-#primary_nav_wrap
-{
-	border-bottom: 1px solid gainsboro;
 }
 
 #primary_nav_wrap ul

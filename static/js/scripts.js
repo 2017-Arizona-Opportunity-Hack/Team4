@@ -32,11 +32,19 @@ function initMap()
 
 function openfile()
 {
-    document.getElementById("IMP").innerHTML="<input onChange='finishthem()' type='file'/>";
+    document.getElementById("IMP").innerHTML="<form action='opencsv/' method=post enctype=multipart/form-data><p><input type=file name=file><br/><br/><input type=submit value=Upload></form>";
 }
 
-function finishthem()
+function submitfilters()
 {
-    console.log(document.getElementById("IMP").name);
-    document.getElementById("IMP").innerHTML="Import CSV";
+    $.ajax({
+        url: '/requests/',
+        type: 'POST',
+        datatype: 'JSON',
+        data: {
+            A: document.getElementById('A').value
+        }
+    }).done(function(data) {
+        console.log(data)
+    });
 }
