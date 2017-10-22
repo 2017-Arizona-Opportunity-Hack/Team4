@@ -19,6 +19,8 @@ The Google Maps API allows you to make free requests up to a certain amount,
 but after that it requires a special user key and charges for access. Up to
 25,000 map loads per day, and $0.05 for every additional map load.
 
+This API key can be added to the NCMEC.cfg file under the "GOOGLE_API_KEY" section.
+
 #### Requirements:
 
 * Python 2.7
@@ -63,3 +65,5 @@ These columns are used in the filtering process. One of our biggest challenges
 was converting addresses into latitude/longitude values. There are a plethora
 of free services available, our issue was over-taxing the free system past our
 daily limits.
+
+5. Open any browser and navigate to http://localhost:5000

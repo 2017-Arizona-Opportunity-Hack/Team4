@@ -1,6 +1,5 @@
 import csv
 import pandas as pd
-import geocoder
 from collections import defaultdict
 
 def readFILE(fileName):
