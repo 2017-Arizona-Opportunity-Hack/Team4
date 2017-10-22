@@ -6,7 +6,7 @@ import json
 import numpy as np
 import matplotlib.pyplot as plt
 
-def load_filtered_data(filter_dict):
+def load_filtered_data(filter_dict, attempts, missing):
 	'''
 	Return tuple containing whether or not the abduction was successful and
 	latitude/longitude coordinates of cases that conform to the parameters in
@@ -14,8 +14,8 @@ def load_filtered_data(filter_dict):
 
 	(crime_success, (latitude, longitude))
 	'''
-	missing_data_filename = 'Hackathon_Missing_Child_5_Years_of_Data_Geo.csv'
-	attempt_data_filename = 'Attempts_Hackathon_5_Years_of_Data_Geo.csv'
+	missing_data_filename = missing
+	attempt_data_filename = attempts
 
 	try:
 		data_missing = pd.read_csv(missing_data_filename)
@@ -43,7 +43,6 @@ def load_filtered_data(filter_dict):
 	# location.
 	if 'location' in filter_dict and 'location_range' in filter_dict:		
 		start_lat_long = [filter_dict['location']['lat'], filter_dict['location']['lon']]
-
 		if start_lat_lon == [] or type(start_lat_lon) == type(None):
 			start_lat_lon = test_lat_lon
 
@@ -107,7 +106,7 @@ def load_filtered_data(filter_dict):
 			break
 	if display_attempt:
 		if 'location' in filter_dict and 'location_range' in filter_dict:
-			start_lat_lon = geocoder.google(filter_dict['location']).latlng
+			start_lat_lon = [filter_dict['location']['lat'], filter_dict['location']['lng']]
 			if start_lat_lon == []:
 				start_lat_lon = test_lat_lon
 			location_range = float(filter_dict['location_range'])

@@ -13,11 +13,16 @@
       <li><a href="#">File</a>
         <ul>
           <li>
-            <a id="IMP" href="javascript:openfile()" data-bind="true">Import CSV</a></li>
-          <li><a href="BackEnd.addMarker" data-bind="true">Preferences</a></li>
+              <a id="IMPA" href="javascript:openfile('A')" data-bind="true">Import Attempts CSV</a>
+          </li>
+          <li><a id="IMPM" href="javascript:openfile('M')" data-bind="true">Import Missing CSV</a></li>
         </ul>
       </li>
-      <li><a href="#">Filter</a>
+      <li><a href="javascript:submitfilters()">Filter</a>
+      </li>
+      <li>
+        <div class="curr">Current Attempts File: {{ att }}</div>
+        <div class="curr">Current Missing File: {{ mis }}</div>
       </li>
     </ul>
     </nav>
@@ -25,6 +30,10 @@
     <br/>
     <div id="fil">
       <h2 style="margin-bottom: 5px; margin-left: -5px">Filters</h2>
+        <label>Offense Type</label><br/><br/>
+        <input type="radio" id="Tm1" name="off_type" value="Male">Attempts<br>
+        <input type="radio" id="Tf1" name="off_type" value="Female">Missing<br>
+        <input type="radio" id="Ta1" name="off_type" value="All">Both<br><br>
         <label>Gender</label><br/><br/>
         <input type="radio" id="m1" name="child_gender" value="Male">Male<br>
         <input type="radio" id="f1" name="child_gender" value="Female">Female<br>
@@ -102,15 +111,18 @@
         <input style="width: 90px" type="text" id="datepicker1"> to <input  style="width: 90px" type="text" id="datepicker2"><br><br>
         <label>By Address</label><br/><br/>
         <input id='addr' style="width: 200px; margin-top: 2px;" type="text"></input>
-        <input id="range" onchange="rangeSliderHandler()" oninput="rangeSliderHandler()" style="width: 200px; margin-top: 4px; margin-right: 10px" type="range" min="0" max="50" value="25" class="slider">
+        <input id="range" onchange="rangeSliderHandler()" oninput="rangeSliderHandler()" style="width: 200px; margin-top: 4px; margin-right: 10px" type="range" min="0" max="100" value="25" class="slider">
         <br/><label id="rnglbl">25 mi</label>
         <br><br/><br/>
-        <input type="submit" value="Submit">
+        <input type="submit" onclick="submitfilters()" value="Submit">
     </div>
     <div id="map"></div>
     <div id="ana">
       <h2 style="margin-bottom: 5px; margin-left: -5px">Analytics</h2>
-      <img onclick="expandPlot('../static/images/explot.png')" src = "../static/images/explot.png"/>
+      <img id="lure_info" onclick="expandPlot(1)" src = "../static/images/lure_info.png"/>
+      <center>Lure Data based on Filters</center>
+      <img id="day_time_stats" onclick="expandPlot(1)" src = "../static/images/day_time_stats.png"/>
+      <center>Statistics on Time of Day</center>
     </div>
     <script src="https://maps.googleapis.com/maps/api/js?callback=initMap"
     async defer></script>
