@@ -38,9 +38,10 @@ def load_filtered_data(filter_dict):
 	# This allows us to get lat/longs within a square area of a specified
 	# location.
 	if 'location' in filter_dict and 'location_range' in filter_dict:
-		start_lat_lon = geocoder.google(filter_dict['location']).latlng
-		if start_lat_lon == []:
-			start_lat_lon = test_lat_lon
+		#start_lat_lon = geocoder.google(filter_dict['location']).latlng
+		#if start_lat_lon == [] or type(start_lat_lon) == type(None):
+		#	start_lat_lon = test_lat_lon
+
 		location_range = float(filter_dict['location_range'])
 		delta_theta = location_range/R
 
@@ -125,6 +126,22 @@ def load_filtered_data(filter_dict):
 						compound_filter = gender_filter
 					else:
 						compound_filter = compound_filter | gender_filter
+			filters_attempt.append(compound_filter)
+		age_min = 0
+		age_max = 21
+		if 'age_min' in filter_dict:
+			age_min = int(filter_dict['age_min'])
+		if 'age_max' in filter_dict:
+			age_max = int(filter_dict['age_max'])
+		compound_filter = None
+		for i in range(6):
+			age_range_filter = (data_attempt['Child Perceived Age ' + str(i + 1)] >= str(age_min)) & \
+				(data_attempt['Child Perceived Age ' + str(i + 1)] <= str(age_max))
+			if type(compound_filter) == type(None):
+				compound_filter = age_range_filter
+			else:
+				compound_filter = compound_filter | age_range_filter
+			filters_attempt.append(compound_filter)
 		if 'state' in filter_dict:
 			filters_attempt.append(data_attempt['Incident State'] == filter_dict['state'])
 		if 'date_min' in filter_dict:
@@ -214,7 +231,8 @@ def __collate_locations(set1, set2):
 if __name__ == "__main__":
 	#print(load_all_data())
 	#print(load_filtered_data({'gender':'Female', 'age_min':'1', 'age_max':'3'}))
+	locations = load_filtered_data({'gender':'Female', 'age_min':'1', 'age_max':'2'})
 	#locations = load_filtered_data({'date_min':'2011-01-01', 'date_max':'2014-01-01', 'location':'6161 e grant rd tucson az 85712', 'location_range':'50'})
-	locations = load_filtered_data({'gender':'Female', 'location':'6161 e grant rd tucson az 85712', 'location_range':'50'})
+	#locations = load_filtered_data({'gender':'Female', 'location':'6161 e grant rd tucson az 85712', 'location_range':'50'})
 	print(len(locations))
 	print(locations[0])
