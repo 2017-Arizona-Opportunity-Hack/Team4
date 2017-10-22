@@ -48,8 +48,8 @@ def load_filtered_data(filter_dict, attempts, missing):
 		# This allows us to get lat/longs within a square area of a specified
 		# location.
 		if 'location' in filter_dict and 'location_range' in filter_dict:		
-			start_lat_long = [filter_dict['location']['lat'], filter_dict['location']['lon']]
-			if start_lat_lon == [] or type(start_lat_lon) == type(None):
+			start_lat_lon = [filter_dict['location']['lat'], filter_dict['location']['lng']]
+			if start_lat_lon == []:
 				start_lat_lon = test_lat_lon
 
 			location_range = float(filter_dict['location_range'])
@@ -126,7 +126,7 @@ def load_filtered_data(filter_dict, attempts, missing):
 
 		filters_attempt.append(data_attempt['Lon'] >= lon_min)
 		filters_attempt.append(data_attempt['Lon'] <= lon_max)
-
+		print(lon_max, filters_attempt[-1])
 	if 'gender' in filter_dict:
 		compound_filter = None
 		if filter_dict['gender'] != 'All':
@@ -176,11 +176,16 @@ def load_filtered_data(filter_dict, attempts, missing):
 	print('Num filters being applied to attempts:', len(filters_attempt))
 	
 	compound_filter = None
+	#print filters_attempt
 	for i in range(len(filters_attempt)):
 		if type(compound_filter) == type(None):
 			compound_filter = filters_attempt[i]
 		else:
-			compound_filter = compound_filter & filters_attempt[i]
+			try:
+				#print(type(compound_filter), type(filters_attempt[i]))
+				compound_filter = compound_filter & filters_attempt[i]
+			except(TypeError):
+				pass
 
 	if len(filters_attempt) == 0:
 		filtered_attempt = data_attempt[['Lat', 'Lon']].values.tolist()
@@ -189,10 +194,6 @@ def load_filtered_data(filter_dict, attempts, missing):
 		filtered_attempt = data_attempt[compound_filter][['Lat', 'Lon']].dropna(axis=0, how='any').values.tolist()
 		lure_frequency(data_attempt[compound_filter])
 		time_of_day_breakdown(data_attempt[compound_filter])
-	
-	num_attempt = filtered_attempt.shape[0]
-	num_missing = filtered_missing.shape[0]
-	N = num_attempt + num_missing
 
 	print('num missing with current filter:', len(filtered_missing))
 	print('num attempted with current filter:', len(filtered_attempt))
@@ -303,8 +304,9 @@ def time_of_day_breakdown(filtered_attempt):
 	y = np.array(y)
 
 	counts_2d = counts_2d[1:, :]
+	alpha = 1 if counts_2d.max() < 1 else 1.0/counts_2d.max()
 	print(counts_2d)
-	plt.scatter(x, y, alpha=1/counts_2d.max(), s=400)
+	plt.scatter(x, y, alpha=alpha, s=400)
 	plt.xticks(range(7), day_labels, rotation=-45)
 	plt.margins(0.2)
 	plt.ylabel('Time of day')
