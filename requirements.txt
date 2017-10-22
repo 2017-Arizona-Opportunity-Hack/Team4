@@ -1,0 +1,7 @@
+# Python 2.7
+
+Flask==0.12
+pandas==0.20.3
+geocoder==1.32.1
+numpy==1.12.1+mkl
+matplotlib==2.0.0
