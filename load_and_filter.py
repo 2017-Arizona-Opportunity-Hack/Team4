@@ -35,6 +35,8 @@ def load_filtered_data(filter_dict):
 	# Assumes that the location range parameter is in miles.
 	# Small angle approximation to convert a mile distance to angles on a
 	# perfect sphere of radius R.
+	# This allows us to get lat/longs within a square area of a specified
+	# location.
 	if 'location' in filter_dict and 'location_range' in filter_dict:
 		start_lat_lon = geocoder.google(filter_dict['location']).latlng
 		if start_lat_lon == []:
@@ -70,20 +72,22 @@ def load_filtered_data(filter_dict):
 		#filters_missing.append(data_missing['Age Missing'] <= data_missing['Age Missing'].max(axis=0))
 		filters_missing.append(data_missing['Age Missing'] <= int(filter_dict['age_max']))
 	if 'animal' in filter_dict:
-		filters_missing.append(data_missing['Offer Method Animal'] == -1)
+		filters_missing.append(data_missing['Offender Method Animal'] == -1)
 	if 'candy' in filter_dict:
-		filters_missing.append(data_missing['Offer Method Candy'] == -1)
+		filters_missing.append(data_missing['Offender Method Candy'] == -1)
 	if 'money' in filter_dict:
-		filters_missing.append(data_missing['Offer Method Money'] == -1)
+		filters_missing.append(data_missing['Offender Method Money'] == -1)
 	if 'ride' in filter_dict:
-		filters_missing.append(data_missing['Offer Method Ride'] == -1)
+		filters_missing.append(data_missing['Offender Method Ride'] == -1)
 	if 'other' in filter_dict:
-		filters_missing.append(data_missing['Offer Method Other'] == -1)
+		filters_missing.append(data_missing['Offender Method Other'] == -1)
 	if 'date_min' in filter_dict:
+		date_min = convert_date(filter_dict['date_min'])
 		#filters_missing.append(data_missing['Missing Date'] >= data_missing['Missing Date'].min(axis=0))
-		filters_missing.append(data_missing['Missing Date'] >= filter_dict['date_min'])
+		filters_missing.append(data_missing['Missing Date'] >= date_min)
 	if 'date_max' in filter_dict:
-		filters_missing.append(data_missing['Missing Date'] <= filter_dict['date_max'])
+		date_max = convert_date(filter_dict['date_max'])
+		filters_missing.append(data_missing['Missing Date'] <= date_max)
 	print('Num filters being applied to missing:', len(filters_missing))
 
 	compound_filter = None
@@ -135,9 +139,12 @@ def load_filtered_data(filter_dict):
 			filters_attempt.append(data_attempt['Incident State'] == filter_dict['state'])
 		if 'date_min' in filter_dict:
 			#filters_attempt.append(data_attempt['Incident Date'] >= data_attempt['Incident Date'].min(axis=0))
-			filters_attempt.append(data_attempt['Incident Date'] >= filter_dict['date_min'])
+			#date_min = '-'.join(filter_dict['date_min'].split('/'))
+			date_min = convert_date(filter_dict['date_min'])
+			filters_attempt.append(data_attempt['Incident Date'] >= date_min)
 		if 'date_max' in filter_dict:
-			filters_attempt.append(data_attempt['Incident Date'] <= filter_dict['date_max'])
+			date_max = convert_date(filter_dict['date_max'])
+			filters_attempt.append(data_attempt['Incident Date'] <= date_max)
 		print('Num filters being applied to attempts:', len(filters_attempt))
 		
 		compound_filter = None
@@ -157,7 +164,14 @@ def load_filtered_data(filter_dict):
 	print('num missing:', len(filtered_missing))
 	print('num attempted:', len(filtered_attempt))
 
-	return __collate_locations(filtered_missing, filtered_attempt)
+	return __collate_locations(filtered_attempt, filtered_missing)
+
+def convert_date(date):
+	(m, d, y) = date.split('/')
+	m = "%02d" % (int(m),)
+	d = "%02d" % (int(d),)
+	date = [y, m, d]
+	return '-'.join(date)
 
 def load_all_data():
 	'''
