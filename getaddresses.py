@@ -7,8 +7,8 @@ data_attempt = pd.read_csv('Attempts_Hackathon_5_Years_of_Data.csv')
 #data_attempt = data_attempt[data_attempt.name.notnull()]
 
 def get_addresses():
-	columns_missing = ['Missing City', 'Missing State', 'Missing Zip']
-	columns_attempt = ['Incident Location', 'Incident City', 'Incident State', 'Incident Zip']
+	columns_missing = ['Case Number', 'Missing City', 'Missing State', 'Missing Zip']
+	columns_attempt = ['Case Number', 'Incident Location', 'Incident City', 'Incident State', 'Incident Zip']
 
 	attempt_locations_raw = data_attempt[columns_attempt]
 
@@ -31,8 +31,10 @@ def get_addresses():
 		if (i*100/(int(len(data_attempt)/10)*10) % 10 == 0):
 			print('{0}% finished'.format(i/len(data_attempt)*100))
 
-		if 'unknown' not in location[0].lower():
-			locations.append(' '.join(location))
+		# Appends tuple of (case_number, address) to the list of locations if
+		# the incident location isn't 'unknown'
+		if 'unknown' not in location[1].lower():
+			locations.append((int(location[0]), ' '.join(location[1:])))
 
 	print('\n\tTotal number of bad zip codes:', num_bad_zips)
 
