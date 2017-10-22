@@ -41,10 +41,11 @@ def load_filtered_data(filter_dict):
 	# perfect sphere of radius R.
 	# This allows us to get lat/longs within a square area of a specified
 	# location.
-	if 'location' in filter_dict and 'location_range' in filter_dict:
-		#start_lat_lon = geocoder.google(filter_dict['location']).latlng
-		#if start_lat_lon == [] or type(start_lat_lon) == type(None):
-		#	start_lat_lon = test_lat_lon
+	if 'location' in filter_dict and 'location_range' in filter_dict:		
+		start_lat_long = [filter_dict['location']['lat'], filter_dict['location']['lon']]
+
+		if start_lat_lon == [] or type(start_lat_lon) == type(None):
+			start_lat_lon = test_lat_lon
 
 		location_range = float(filter_dict['location_range'])
 		delta_theta = location_range/R
