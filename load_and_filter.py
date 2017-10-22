@@ -59,7 +59,8 @@ def load_filtered_data(filter_dict):
 		print('Lon:', lon_max, lon_min)
 
 	if 'gender' in filter_dict:
-		filters_missing.append(data_missing['Gender'] == filter_dict['gender'])
+		if filter_dict['gender'] != 'All':
+			filters_missing.append(data_missing['Gender'] == filter_dict['gender'])
 	if 'state' in filter_dict:
 		filters_missing.append(data_missing['Missing State'] == filter_dict['state'])
 	if 'age_min' in filter_dict:
@@ -123,12 +124,13 @@ def load_filtered_data(filter_dict):
 
 		if 'gender' in filter_dict:
 			compound_filter = None
-			for i in range(6):
-				gender_filter = data_attempt['Child Gender ' + str(i + 1)] == filter_dict['gender']
-				if type(compound_filter) == type(None):
-					compound_filter = gender_filter
-				else:
-					compound_filter = compound_filter | gender_filter
+			if filter_dict['gender'] != 'All':
+				for i in range(6):
+					gender_filter = data_attempt['Child Gender ' + str(i + 1)] == filter_dict['gender']
+					if type(compound_filter) == type(None):
+						compound_filter = gender_filter
+					else:
+						compound_filter = compound_filter | gender_filter
 		if 'state' in filter_dict:
 			filters_attempt.append(data_attempt['Incident State'] == filter_dict['state'])
 		if 'date_min' in filter_dict:
@@ -197,6 +199,6 @@ if __name__ == "__main__":
 	#print(load_all_data())
 	#print(load_filtered_data({'gender':'Female', 'age_min':'1', 'age_max':'3'}))
 	#locations = load_filtered_data({'date_min':'2011-01-01', 'date_max':'2014-01-01', 'location':'6161 e grant rd tucson az 85712', 'location_range':'50'})
-	locations = load_filtered_data({'location':'6161 e grant rd tucson az 85712', 'location_range':'50'})
+	locations = load_filtered_data({'gender':'Female', 'location':'6161 e grant rd tucson az 85712', 'location_range':'50'})
 	print(len(locations))
 	print(locations[0])
