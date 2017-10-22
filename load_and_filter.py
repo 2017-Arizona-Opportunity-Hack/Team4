@@ -191,11 +191,19 @@ def load_filtered_data(filter_dict, attempts, missing):
 		lure_frequency(data_attempt[compound_filter])
 		time_of_day_breakdown(data_attempt[compound_filter])
 	
+	num_attempt = filtered_attempt.shape[0]
+	num_missing = filtered_missing.shape[0]
+	N = num_attempt + num_missing
+
+	if N > 0:
+		percentages = {'attempts':num_attempt*100/N, 'missing':num_missing*100/N}
+	else:
+		percentages = {'attempts':0, 'missing':0}
 
 	print('num missing with current filter:', len(filtered_missing))
 	print('num attempted with current filter:', len(filtered_attempt))
 
-	return __collate_locations(filtered_attempt, filtered_missing)
+	return __collate_locations(filtered_attempt, filtered_missing), percentages
 
 def convert_date(date):
 	(m, d, y) = date.split('/')
