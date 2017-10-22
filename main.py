@@ -3,11 +3,18 @@ import json, os, time
 
 import load_and_filter
 
+global ATTEMPTS
+global MISSING
+global API_KEY
+
 with open("NCMEC.cfg") as cfg:
     config = json.load(cfg)
     API_KEY = config['GOOGLE_API_KEY']
+    MISSING = config['MISSING_CSV_FILE']
+    ATTEMPTS = config['ATTEMPTS_CSV_FILE']
+cfg.close()
 
-UPLOAD_FOLDER = 'uploads/'
+UPLOAD_FOLDER = 'data/'
 ALLOWED_EXTENSIONS = set(['csv'])
 
 app = Flask(__name__)
@@ -15,7 +22,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
  
 @app.route('/')
 def render_static():
-    return render_template('index.html', key=API_KEY)
+    return render_template('index.html', key=API_KEY, mis=MISSING, att=ATTEMPTS)
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -23,18 +30,33 @@ def allowed_file(filename):
 
 @app.route('/opencsv/', methods=['GET', 'POST'])
 def index():
+    global ATTEMPTS
+    global MISSING
+    global API_KEY
     if request.method == 'POST':
         file = request.files['file']
+        tim = os.path.join(app.config['UPLOAD_FOLDER'], str(int(time.time())) + '_' + file.filename)
+        if request.form['type'] == 'A':
+            ATTEMPTS = tim
+        elif request.form['type'] == 'M':
+            MISSING = tim
+        config['MISSING_CSV_FILE'] = MISSING
+        config['ATTEMPTS_CSV_FILE'] = ATTEMPTS
+        config['GOOGLE_API_KEY'] = API_KEY
+        with open("NCMEC.cfg", "w") as cfg:
+            json.dump(config, cfg)
+        cfg.close()
         if file and allowed_file(file.filename):
             filename = file.filename
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], str(int(time.time())) + '.csv'))
+            file.save(tim)
             return redirect(url_for('index'))
     return render_template('ref.html')
 
 @app.route('/requests/', methods=['GET', 'POST'])
 def requestData():
+    global ATTEMPTS
+    global MISSING
     result = json.loads(request.data);
-    print result
     easy = dict();
     if 'location' in result:
         if result['location'] != "":
@@ -64,14 +86,13 @@ def requestData():
         easy['date_max'] = result['date_max']
     if 'date_min' in result:
         easy['date_min'] = result['date_min']
-    
-    print load_and_filter.load_filtered_data(easy)
-    return json.dumps(load_and_filter.load_all_data())
 
-    if request.form:
-        return 'That Looks Like Data to Me Boyo'
-    else:
-        return 'WOO'
+    return json.dumps(load_and_filter.load_filtered_data(easy, ATTEMPTS, MISSING))
 
 if __name__ == '__main__':
     app.run()
+    config['MISSING_CSV_FILE'] = MISSING
+    config['ATTEMPTS_CSV_FILE'] = ATTEMPTS
+    with open("NCMEC.cfg", "w") as cfg:
+        json.dump(config, cfg)
+    cfg.close()

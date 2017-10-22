@@ -88,6 +88,19 @@ html, body {
 	font-family:"HelveticaNeue","Helvetica Neue",Helvetica,Arial,sans-serif
 }
 
+#primary_nav_wrap ul .curr
+{
+	display:block;
+	color:#333;
+	text-decoration:none;
+	font-weight:700;
+	font-size:10px;
+	line-height:14px;
+	margin-top: 2px;
+	padding:0 15px;
+	font-family:"HelveticaNeue","Helvetica Neue",Helvetica,Arial,sans-serif
+}
+
 #primary_nav_wrap ul li
 {
 	position:relative;
