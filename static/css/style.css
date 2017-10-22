@@ -15,7 +15,18 @@
 }
 
 #map {
-    height: calc(100% - 40px);
+    height: calc(100% - 35px);
+	width: calc(100% - 300px);
+	margin-top: -4px;
+	float: left;
+}
+
+#fil {
+	width: 300px;
+	height: calc(100% - 35px);
+	margin-top: -4px;
+	float:left;
+	border-top: 1px solid gainsboro;
 }
 
 html, body {
@@ -27,7 +38,7 @@ html, body {
 
 #primary_nav_wrap
 {
-	margin-top:5px
+	border-bottom: 1px solid gainsboro;
 }
 
 #primary_nav_wrap ul
@@ -83,7 +94,7 @@ html, body {
 #primary_nav_wrap ul ul li
 {
 	float:none;
-	width:200px
+	width:250px
 }
 
 #primary_nav_wrap ul ul a

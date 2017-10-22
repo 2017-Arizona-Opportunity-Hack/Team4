@@ -11,15 +11,17 @@
         <ul>
           <li><a id="IMP" href="javascript:openfile()" data-bind="true">Import CSV</a></li>
           <li><a href="BackEnd.addMarker" data-bind="true">Preferences</a></li>
-          <li><a href="BackEnd.exit" data-bind="true">Exit</a></li>
         </ul>
+      </li>
+      <li><a href="#">Filter</a>
       </li>
     </ul>
     </nav>
     <br/>
     <br/>
+    <div id="fil"></div>
     <div id="map"></div>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBtH6N0gcvCUoBzRd_kfK6R9Dw1WN66nDM&callback=initMap"
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ key }}&callback=initMap"
     async defer></script>
   </body>
 </html>
