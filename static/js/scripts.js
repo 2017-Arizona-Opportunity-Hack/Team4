@@ -6,14 +6,13 @@ function print(str)
     document.getElementById('test').innerHTML = str;
 }
 
-function addMarker(lat, lng) {
+function addMarker(lat, lng, c) {
     map.setCenter(new google.maps.LatLng(33.4340698,-111.9041857));
     marker = new google.maps.Marker({
         position: new google.maps.LatLng(lat, lng),
         map: map,
-        icon: 'static/markers/blue_MarkerI.png'
+        icon: (c == 1) ? 'static/markers/blue_MarkerI.png' : 'static/markers/red_MarkerI.png'
     });
-    console.log(marker);
 }
 
 function initMap()
@@ -50,6 +49,7 @@ function submitfilters()
         url: '/requests/',
         type: 'POST',
         contentType: 'application/json',
+        dataType: 'json',
         data: JSON.stringify({
             gender: gender,
             state: state,
@@ -62,7 +62,10 @@ function submitfilters()
             date_max: date_max
         })
     }).done(function(data) {
-        console.log(data)
+        var arrayLength = data.length;
+        for (var i = 0; i < arrayLength; i++) {
+            addMarker(data[i][1][0], data[i][1][1], data[i][0])
+        }
     });
 }
 

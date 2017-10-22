@@ -66,6 +66,7 @@ def requestData():
         easy['date_min'] = result['date_min']
     
     print load_and_filter.load_filtered_data(easy)
+    return json.dumps(load_and_filter.load_all_data())
 
     if request.form:
         return 'That Looks Like Data to Me Boyo'
