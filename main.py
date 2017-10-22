@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for
 import json, os, time
 
+import load_and_filter
+
 with open("NCMEC.cfg") as cfg:
     config = json.load(cfg)
     API_KEY = config['GOOGLE_API_KEY']
@@ -31,10 +33,40 @@ def index():
 
 @app.route('/requests/', methods=['GET', 'POST'])
 def requestData():
-    result = request.form
-    for key, value in result.iteritems():
-        print key
-        print value
+    result = json.loads(request.data);
+    print result
+    easy = dict();
+    if 'location' in result:
+        if result['location'] != "":
+            easy['location'] = result['location']
+            easy['location_range'] = result['loc_range']
+    if 'gender' in result:
+        easy['gender'] = result['gender']
+    if 'state' in result:
+        if result['state'] != "ANY":
+            easy['state'] = result['state']
+    if 'age_max' in result:
+        easy['age_max'] = int(result['age_max'])
+    if 'age_min' in result:
+        easy['age_min'] = int(result['age_min'])
+    if 'methods' in result:
+        if 'AN' in result['methods']:
+            easy['animal'] = True;
+        if 'CA' in result['methods']:
+            easy['candy'] = True;
+        if 'MO' in result['methods']:
+            easy['money'] = True;
+        if 'RD' in result['methods']:
+            easy['ride'] = True;
+        if 'OT' in result['methods']:
+            easy['other'] = True;
+    if 'date_max' in result:
+        easy['date_max'] = result['date_max']
+    if 'date_min' in result:
+        easy['date_min'] = result['date_min']
+    
+    print load_and_filter.load_filtered_data(easy)
+
     if request.form:
         return 'That Looks Like Data to Me Boyo'
     else:

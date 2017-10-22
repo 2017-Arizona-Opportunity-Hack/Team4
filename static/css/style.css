@@ -16,9 +16,17 @@
 
 #map {
     height: calc(100% - 35px);
-	width: calc(100% - 250px);
+	width: calc(100% - 500px);
 	margin-top: -4px;
 	float: left;
+}
+
+#plt {
+    height: calc(100% - 35px);
+	width: calc(100% - 500px);
+	margin-top: -4px;
+	float: left;
+	display: none;
 }
 
 input[type="submit"]
@@ -35,12 +43,20 @@ input[type="submit"]:hover {
 	background: #ddd;
 }
 
-#fil {
-	width: 250px;
+#fil, #ana {
+	width: 230px;
 	height: calc(100% - 35px);
 	margin-top: -4px;
 	float:left;
 	border-top: 1px solid gainsboro;
+	font-size:12px;
+	padding-left: 20px;
+	font-family:"HelveticaNeue","Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+#ana img {
+	width: 95%;
+	cursor: pointer;
 }
 
 html, body {
