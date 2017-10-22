@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
 import json, os, time
 
-import load_and_filter
+import load_and_filter, checkingFileType
 
 global ATTEMPTS
 global MISSING
@@ -36,19 +36,21 @@ def index():
     if request.method == 'POST':
         file = request.files['file']
         tim = os.path.join(app.config['UPLOAD_FOLDER'], str(int(time.time())) + '_' + file.filename)
-        if request.form['type'] == 'A':
-            ATTEMPTS = tim
-        elif request.form['type'] == 'M':
-            MISSING = tim
-        config['MISSING_CSV_FILE'] = MISSING
-        config['ATTEMPTS_CSV_FILE'] = ATTEMPTS
-        config['GOOGLE_API_KEY'] = API_KEY
-        with open("NCMEC.cfg", "w") as cfg:
-            json.dump(config, cfg)
-        cfg.close()
         if file and allowed_file(file.filename):
             filename = file.filename
             file.save(tim)
+            x = checkingFileType.readFILE(tim)
+            if x != -1:
+                if request.form['type'] == 'A' and x == 0:
+                    ATTEMPTS = tim
+                elif request.form['type'] == 'M' and x == 1:
+                    MISSING = tim
+                config['MISSING_CSV_FILE'] = MISSING
+                config['ATTEMPTS_CSV_FILE'] = ATTEMPTS
+                config['GOOGLE_API_KEY'] = API_KEY
+                with open("NCMEC.cfg", "w") as cfg:
+                    json.dump(config, cfg)
+                cfg.close()  
             return redirect(url_for('index'))
     return render_template('ref.html')
 
