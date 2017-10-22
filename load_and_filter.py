@@ -71,16 +71,6 @@ def load_filtered_data(filter_dict):
 	if 'age_max' in filter_dict:
 		#filters_missing.append(data_missing['Age Missing'] <= data_missing['Age Missing'].max(axis=0))
 		filters_missing.append(data_missing['Age Missing'] <= int(filter_dict['age_max']))
-	if 'animal' in filter_dict:
-		filters_missing.append(data_missing['Offender Method Animal'] == -1)
-	if 'candy' in filter_dict:
-		filters_missing.append(data_missing['Offender Method Candy'] == -1)
-	if 'money' in filter_dict:
-		filters_missing.append(data_missing['Offender Method Money'] == -1)
-	if 'ride' in filter_dict:
-		filters_missing.append(data_missing['Offender Method Ride'] == -1)
-	if 'other' in filter_dict:
-		filters_missing.append(data_missing['Offender Method Other'] == -1)
 	if 'date_min' in filter_dict:
 		date_min = convert_date(filter_dict['date_min'])
 		#filters_missing.append(data_missing['Missing Date'] >= data_missing['Missing Date'].min(axis=0))
@@ -145,6 +135,18 @@ def load_filtered_data(filter_dict):
 		if 'date_max' in filter_dict:
 			date_max = convert_date(filter_dict['date_max'])
 			filters_attempt.append(data_attempt['Incident Date'] <= date_max)
+
+		if 'animal' in filter_dict:
+			filters_attempt.append(data_attempt['Offender Method Animal'] == -1)
+		if 'candy' in filter_dict:
+			filters_attempt.append(data_attempt['Offender Method Candy'] == -1)
+		if 'money' in filter_dict:
+			filters_attempt.append(data_attempt['Offender Method Money'] == -1)
+		if 'ride' in filter_dict:
+			filters_attempt.append(data_attempt['Offender Method Ride'] == -1)
+		if 'other' in filter_dict:
+			filters_attempt.append(data_attempt['Offender Method Other'] == -1)
+
 		print('Num filters being applied to attempts:', len(filters_attempt))
 		
 		compound_filter = None
